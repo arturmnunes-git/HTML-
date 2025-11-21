@@ -1,0 +1,49 @@
+const cardContainer = document.querySelector(".card-container");
+const searchInput = document.querySelector(".search-container input");
+let dados = [];
+
+async function carregarDados() {
+    // Carrega os dados do JSON apenas se ainda não foram carregados
+    if (dados.length === 0) {
+        try {
+            const resposta = await fetch("data.json");
+            dados = await resposta.json();
+        } catch (error) {
+            console.error("Erro ao carregar os dados:", error);
+        }
+    }
+}
+
+function renderizarCards(items) {
+    // Limpa os cards existentes antes de renderizar novos
+    cardContainer.innerHTML = "";
+
+    for (const dado of items) {
+        let article = document.createElement("article");
+        article.classList.add("card");
+        article.innerHTML = `
+            <h2>${dado.nome}</h2>
+            <p>${dado.descrição}</p>
+            <p>${dado.detalhes}</p>
+            <a href="${dado.link}" target="_blank">${dado.nome}</a>
+        `;
+        cardContainer.appendChild(article);
+    }
+}
+
+function iniciarBusca() {
+    const termoBusca = searchInput.value.toLowerCase();
+    const resultados = dados.filter(dado => 
+        dado.nome.toLowerCase().includes(termoBusca) ||
+        dado.detalhes.toLowerCase().includes(termoBusca)
+    );
+    renderizarCards(resultados);
+}
+
+async function carregarEExibirTodos() {
+    await carregarDados();
+    renderizarCards(dados);
+}
+
+// Carrega e exibe todos os cards quando a página é carregada
+carregarEExibirTodos();
